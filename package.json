@@ -1,0 +1,178 @@
+{
+  "name": "darwin",
+  "displayName": "Darwin - Legacy Package Detector",
+  "description": "Scans Python and JavaScript imports for deprecated packages, flags them with diagnostics, and provides automated migration suggestions",
+  "version": "0.1.0",
+  "publisher": "darwin",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:python",
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescriptreact"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "darwin.scanCurrentFile",
+        "title": "Darwin: Scan Current File for Deprecated Packages"
+      },
+      {
+        "command": "darwin.scanWorkspace",
+        "title": "Darwin: Scan Workspace for Deprecated Packages"
+      },
+      {
+        "command": "darwin.clearCache",
+        "title": "Darwin: Clear Deprecation Cache"
+      },
+      {
+        "command": "darwin.ignorePackage",
+        "title": "Darwin: Ignore Package"
+      },
+      {
+        "command": "darwin.migratePackage",
+        "title": "Darwin: Migrate Deprecated Package"
+      },
+      {
+        "command": "darwin.undoMigration",
+        "title": "Darwin: Undo Last Migration"
+      },
+      {
+        "command": "darwin.migrateAllInFile",
+        "title": "Darwin: Migrate All Deprecated Packages in File"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "darwin.migratePackage",
+          "when": "editorTextFocus && resourceLangId =~ /python|javascript|typescript|javascriptreact|typescriptreact/",
+          "group": "darwin@1"
+        },
+        {
+          "command": "darwin.migrateAllInFile",
+          "when": "editorTextFocus && resourceLangId =~ /python|javascript|typescript|javascriptreact|typescriptreact/",
+          "group": "darwin@2"
+        },
+        {
+          "command": "darwin.undoMigration",
+          "when": "editorTextFocus && resourceLangId =~ /python|javascript|typescript|javascriptreact|typescriptreact/",
+          "group": "darwin@3"
+        },
+        {
+          "command": "darwin.scanCurrentFile",
+          "when": "editorTextFocus && resourceLangId =~ /python|javascript|typescript|javascriptreact|typescriptreact/",
+          "group": "darwin@4"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Darwin",
+      "properties": {
+        "darwin.tavilyApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "API key for Tavily search service"
+        },
+        "darwin.geminiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "API key for Google Gemini AI"
+        },
+        "darwin.geminiModel": {
+          "type": "string",
+          "default": "gemini-2.0-flash",
+          "enum": [
+            "gemini-2.5-flash",
+            "gemini-2.5-pro",
+            "gemini-2.0-flash",
+            "gemini-flash-latest"
+          ],
+          "description": "Gemini model to use for analysis"
+        },
+        "darwin.cacheTtlMonths": {
+          "type": "number",
+          "default": 2,
+          "minimum": 1,
+          "maximum": 12,
+          "description": "Cache time-to-live in months"
+        },
+        "darwin.ignoredPackages": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "description": "List of packages to ignore when scanning"
+        },
+        "darwin.enabledLanguages": {
+          "type": "array",
+          "default": [
+            "python",
+            "javascript",
+            "typescript",
+            "javascriptreact",
+            "typescriptreact"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "description": "Languages to scan for deprecated packages"
+        },
+        "darwin.confidenceThreshold": {
+          "type": "number",
+          "default": 0.8,
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Minimum confidence level (0-1) required to show migration suggestions. Default: 0.8 (80%)"
+        },
+        "darwin.customReplacements": {
+          "type": "object",
+          "default": {},
+          "description": "Custom package replacement mappings. Format: { \"old-package\": \"new-package\" }. These override automatic suggestions.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "darwin.showLowConfidenceWarnings": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show warnings for packages with confidence below threshold"
+        },
+        "darwin.maxMigrationHistorySize": {
+          "type": "number",
+          "default": 10,
+          "minimum": 1,
+          "maximum": 50,
+          "description": "Maximum number of migrations to keep in undo history"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "lint": "eslint src --ext ts"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@tavily/core": "^0.7.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.0.0",
+    "eslint": "^9.0.0"
+  }
+}

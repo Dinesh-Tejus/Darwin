@@ -23,10 +23,10 @@ yarn-error.log*
 Thumbs.db
 
 # IDE/Editor
-.vscode/
 .idea/
 *.swp
 *.swo
+# Keep .vscode for launch.json and tasks.json
 
 # Test coverage
 coverage/
