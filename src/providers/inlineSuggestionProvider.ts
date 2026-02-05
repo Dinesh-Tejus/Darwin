@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import { MigrationInfo, MigrationState, ImportInfo, UsageInfo } from '../models/index.js';
 import { generateMigration, findMigrationDocs } from '../services/deprecationService.js';
-import { getDeprecationData } from './diagnosticsProvider.js';
-import { getStoredUsages } from './decorationProvider.js';
+import { getDeprecationData, clearDiagnostics } from './diagnosticsProvider.js';
+import { getStoredUsages, clearDocumentDecorations } from './decorationProvider.js';
 import { logInfo, logWarning, logError } from '../utils/index.js';
 import { parseImports } from '../parsers/index.js';
 
@@ -236,6 +236,10 @@ async function acceptMigration(
 
       // Update state
       state.status = 'accepted';
+
+      // Clear stale decorations and diagnostics for the migrated file
+      clearDocumentDecorations(document.uri);
+      clearDiagnostics(document.uri);
     } else {
       vscode.window.showErrorMessage('Darwin: Failed to apply migration');
     }

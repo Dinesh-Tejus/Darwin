@@ -1,6 +1,28 @@
 const esbuild = require('esbuild');
 
 const isWatch = process.argv.includes('--watch');
+const isProduction = process.argv.includes('--production');
+
+/**
+ * Plugin that prints markers so the VS Code $esbuild-watch
+ * problem matcher can detect when a build starts and finishes.
+ */
+const esbuildProblemMatcherPlugin = {
+  name: 'esbuild-problem-matcher',
+  setup(build) {
+    build.onStart(() => {
+      console.log('[watch] build started');
+    });
+    build.onEnd((result) => {
+      if (result.errors.length > 0) {
+        result.errors.forEach(({ text, location }) => {
+          console.error(`> ${location.file}:${location.line}:${location.column}: error: ${text}`);
+        });
+      }
+      console.log('[watch] build finished');
+    });
+  },
+};
 
 const buildOptions = {
   entryPoints: ['src/extension.ts'],
@@ -10,18 +32,18 @@ const buildOptions = {
   format: 'cjs',
   platform: 'node',
   target: 'node18',
-  sourcemap: true,
-  minify: !isWatch,
+  sourcemap: !isProduction,
+  minify: isProduction,
+  plugins: [esbuildProblemMatcherPlugin],
 };
 
 async function build() {
+  const ctx = await esbuild.context(buildOptions);
   if (isWatch) {
-    const ctx = await esbuild.context(buildOptions);
     await ctx.watch();
-    console.log('Watching for changes...');
   } else {
-    await esbuild.build(buildOptions);
-    console.log('Build complete');
+    await ctx.rebuild();
+    await ctx.dispose();
   }
 }
 

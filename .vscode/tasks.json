@@ -17,7 +17,7 @@
     {
       "type": "npm",
       "script": "build",
-      "problemMatcher": ["$tsc"],
+      "problemMatcher": ["$esbuild"],
       "group": "build"
     }
   ]

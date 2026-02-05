@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import { parseImports } from '../parsers/index.js';
 import { trackPythonUsages } from '../parsers/pythonUsageTracker.js';
-import { getDeprecationData, storeDeprecationData } from '../providers/diagnosticsProvider.js';
+import { getDeprecationData, storeDeprecationData, clearDiagnostics } from '../providers/diagnosticsProvider.js';
+import { clearDocumentDecorations } from '../providers/decorationProvider.js';
 import { generateMigration, checkDeprecation } from '../services/deprecationService.js';
 import { recordMigration } from '../services/migrationHistoryService.js';
 import {
@@ -550,6 +551,10 @@ async function applyMigration(
     // Close the diff view and show the original document
     await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
     await vscode.window.showTextDocument(document);
+
+    // Clear stale decorations and diagnostics for the migrated file
+    clearDocumentDecorations(document.uri);
+    clearDiagnostics(document.uri);
   } else {
     vscode.window.showErrorMessage('Darwin: Failed to apply migration');
   }

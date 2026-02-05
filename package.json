@@ -158,7 +158,7 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run build",
+    "vscode:prepublish": "npm run build -- --production",
     "build": "node esbuild.js",
     "watch": "node esbuild.js --watch",
     "lint": "eslint src --ext ts"
